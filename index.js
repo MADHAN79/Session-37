@@ -1,18 +1,17 @@
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
+const cors = require('cors');  // Import CORS
 
 const app = express();
 const port = process.env.PORT || 3000;
 const folderPath = path.join(__dirname, 'files');
 
-const cors = require('cors');
-app.use(cors());
-
 // Ensure the folder exists
-fs.ensureDirSync("./files");
+fs.ensureDirSync(folderPath);
 
 // Middleware
+app.use(cors());  // Enable CORS for all origins
 app.use(express.json());
 
 // Endpoint to create a text file with the current timestamp
@@ -31,7 +30,7 @@ app.post('/create-file', async (req, res) => {
 // Endpoint to retrieve all text files
 app.get('/files', async (req, res) => {
   try {
-    const files = await fs.readdir("./files");
+    const files = await fs.readdir(folderPath);
     const textFiles = files.filter(file => file.endsWith('.txt'));
     res.status(200).json({ files: textFiles });
   } catch (error) {
@@ -40,5 +39,5 @@ app.get('/files', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running at https://session-37.onrender.com/${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
