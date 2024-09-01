@@ -6,6 +6,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 const folderPath = path.join(__dirname, 'files');
 
+const cors = require('cors');
+app.use(cors());
+
 // Ensure the folder exists
 fs.ensureDirSync("./files");
 
