@@ -1,7 +1,9 @@
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
-const cors = require('cors');  // Import CORS
+const cors = require('cors');
+const { format } = require('date-fns');
+const { formatInTimeZone } = require('date-fns-tz');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,16 +13,26 @@ const folderPath = path.join(__dirname, 'files');
 fs.ensureDirSync(folderPath);
 
 // Middleware
-app.use(cors());  // Enable CORS for all origins
+app.use(cors());
 app.use(express.json());
 
-// Endpoint to create a text file with the current timestamp
+const timeZone = 'Asia/Kolkata';
+
+// Endpoint to create a text file with the current timestamp in IST
 app.post('/create-file', async (req, res) => {
   try {
-    const timestamp = new Date().toISOString();
-    const filename = `${new Date().toISOString().replace(/:/g, '-')}.txt`;
+    // Get the current date and time in IST
+    const now = new Date();
+    const formattedFilenameDate = formatInTimeZone(now, timeZone, 'yyyy-MM-dd HH-mm-ss');
+    const formattedContentDate = formatInTimeZone(now, timeZone, 'yyyy-MM-dd HH:mm:ss');
+
+    // Create the filename with the human-readable format
+    const filename = `${formattedFilenameDate}.txt`;
     const filePath = path.join(folderPath, filename);
-    await fs.writeFile(filePath, timestamp);
+
+    // Write the human-readable timestamp to the file
+    await fs.writeFile(filePath, formattedContentDate);
+
     res.status(201).json({ message: 'File created', filename });
   } catch (error) {
     res.status(500).json({ error: error.message });
